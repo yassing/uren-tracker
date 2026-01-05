@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Uren">
+  <meta name="theme-color" content="#0f0f0f">
+  <title>Uren Tracker</title>
+
+
+  <style>
+    /* ============================================
+       KLEUREN - PAS HIER AAN
+       ============================================ */
+    :root {
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --accent: #2d2d2d;
+      --purple: #a855f7;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f97316;
+      --text: #ffffff;
+      --text-dim: #737373;
+    }
+
+    /* ============================================
+       BASIS STIJLEN
+       ============================================ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+      padding-top: env(safe-area-inset-top, 16px);
+      padding-bottom: calc(80px + env(safe-area-inset-bottom, 16px));
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       KAARTEN BOVENAAN
+       ============================================ */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .card-bar {
+      height: 3px;
+      border-radius: 2px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 9px;
+      color: var(--text-dim);
+      font-weight: bold;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .card-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .card-suffix {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* Kleuren */
+    .green { background: var(--green); }
+    .orange { background: var(--orange); }
+    .red { background: var(--red); }
+    .purple { background: var(--purple); }
+    .text-green { color: var(--green); }
+    .text-orange { color: var(--orange); }
+    .text-red { color: var(--red); }
+    .text-purple { color: var(--purple); }
+
+    /* ============================================
+       SECTIES
+       ============================================ */
+    .section {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      font-size: 13px;
+    }
+
+    .row-label { color: var(--text-dim); }
+    .row-value { font-weight: 600; }
+
+    /* ============================================
+       TABS
+       ============================================ */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 8px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .tab.active {
+      background: var(--purple);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ============================================
+       FORMULIEREN
+       ============================================ */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      flex: 1;
+    }
+
+    .form-group.small {
+      flex: 0 0 80px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 16px; /* Voorkomt zoom op iOS */
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid var(--purple);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-green { background: var(--green); color: #fff; flex: 1; }
+    .btn-orange { background: var(--orange); color: #000; flex: 1; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-purple { background: var(--purple); color: #fff; }
+
+    /* ============================================
+       LIJST ITEMS
+       ============================================ */
+    .list {
+      margin-top: 14px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: var(--accent);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .list-item-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .list-item-date {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .list-item-note {
+      font-size: 12px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-item-value {
+      font-weight: bold;
+      font-size: 16px;
+      margin: 0 12px;
+      white-space: nowrap;
+    }
+
+    .btn-delete {
+      background: var(--red);
+      color: #fff;
+      padding: 8px 12px;
+      font-size: 12px;
+      min-width: 36px;
+    }
+
+    /* ============================================
+       INSTELLINGEN
+       ============================================ */
+    .settings-row {
+      margin-bottom: 14px;
+    }
+
+    .settings-row label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    /* ============================================
+       LEGE STAAT
+       ============================================ */
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* ============================================
+       MODAL/POPUP
+       ============================================ */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .modal h3 {
+      margin-bottom: 16px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Uren Tracker</h1>
+
+  <!-- ============================================
+       STATISTIEK KAARTEN
+       ============================================ -->
+  <div class="cards">
+    <div class="card">
+      <div class="card-bar green"></div>
+      <div class="card-title">Gewerkt</div>
+      <span class="card-value text-green" id="card-gewerkt">0</span>
+      <span class="card-suffix">uur</span>
+    </div>
+    <div class="card">
+      <div class="card-bar orange"></div>
+      <div class="card-title">Nog te werken</div>
+      <span class="card-value text-orange" id="card-nog">0</span>
+      <span class="card-suffix">uur</span>
+    </div>
+    <div class="card">
+      <div class="card-bar red"></div>
+      <div class="card-title">Terug aan vader</div>
+      <span class="card-value text-red" id="card-terug">€0</span>
+    </div>
+    <div class="card">
+      <div class="card-bar purple"></div>
+      <div class="card-title">Jij houdt over</div>
+      <span class="card-value text-purple" id="card-over">€0</span>
+    </div>
+  </div>
+
+  <!-- ============================================
+       UREN OVERZICHT
+       ============================================ -->
+  <div class="section">
+    <h2>Overzicht</h2>
+    <div class="row"><span class="row-label">Doel</span><span class="row-value" id="row-doel">152 uur</span></div>
+    <div class="row"><span class="row-label">Gewerkt</span><span class="row-value text-green" id="row-gewerkt">0 uur</span></div>
+    <div class="row"><span class="row-label">Uitgaven → uren</span><span class="row-value text-green" id="row-uitgaven-uren">+0 uur</span></div>
+    <div class="row"><span class="row-label">Totaal gedaan</span><span class="row-value text-green" id="row-totaal">0 uur</span></div>
+    <div class="row"><span class="row-label">Nog te werken</span><span class="row-value text-orange" id="row-nog">0 uur</span></div>
+  </div>
+
+  <!-- ============================================
+       GELD OVERZICHT
+       ============================================ -->
+  <div class="section">
+    <h2>Geld</h2>
+    <div class="row"><span class="row-label">Netto totaal</span><span class="row-value" id="row-netto">€2.218</span></div>
+    <div class="row"><span class="row-label">Nu verdiend</span><span class="row-value text-green" id="row-verdiend">€0</span></div>
+    <div class="row"><span class="row-label">Terug aan vader</span><span class="row-value text-red" id="row-terug">€0</span></div>
+    <div class="row" style="font-size:11px;"><span class="row-label">Betaald aan vader</span><span class="row-value" style="display:flex;align-items:center;gap:4px;">€<input type="number" id="betaald-vader" style="width:60px;padding:4px 6px;font-size:12px;" inputmode="decimal" onchange="updateBetaaldVader()"><span class="text-red" style="font-size:10px;" id="nog-betalen"></span></span></div>
+    <div class="row"><span class="row-label">Jij houdt over</span><span class="row-value text-purple" id="row-over">€0</span></div>
+    <div style="border-top: 1px solid var(--accent); margin-top: 8px; padding-top: 8px;">
+      <div class="row"><span class="row-label">Uren over → broertje</span><span class="row-value text-orange" id="uren-over">0 uur</span></div>
+      <div class="row"><span class="row-label">= Geld naar broertje</span><span class="row-value text-orange" id="geld-naar-broertje">€0</span></div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       TABS
+       ============================================ -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('uren')">Uren</button>
+    <button class="tab" onclick="showTab('uitgaven')">Uitgaven</button>
+    <button class="tab" onclick="showTab('settings')">Instellingen</button>
+  </div>
+
+  <!-- ============================================
+       UREN TAB
+       ============================================ -->
+  <div id="tab-uren" class="tab-content active">
+    <div class="section">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Datum</label>
+          <input type="date" id="uren-datum">
+        </div>
+        <div class="form-group small">
+          <label>Uren</label>
+          <input type="number" id="uren-uren" step="0.5" placeholder="0" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notitie (optioneel)</label>
+        <input type="text" id="uren-notitie" placeholder="Bijv. ochtend, avond...">
+      </div>
+      <div class="btn-row">
+        <button class="btn-green" onclick="addUren()">+ Toevoegen</button>
+      </div>
+
+      <div class="list" id="uren-list"></div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       UITGAVEN TAB
+       ============================================ -->
+  <div id="tab-uitgaven" class="tab-content">
+    <div class="section">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Datum</label>
+          <input type="date" id="uitgave-datum">
+        </div>
+        <div class="form-group small">
+          <label>Bedrag €</label>
+          <input type="number" id="uitgave-bedrag" step="0.01" placeholder="0" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Omschrijving (optioneel)</label>
+        <input type="text" id="uitgave-omschr" placeholder="Waar voor?">
+      </div>
+      <div class="btn-row">
+        <button class="btn-orange" onclick="addUitgave()">+ Toevoegen</button>
+      </div>
+
+      <div class="list" id="uitgaven-list"></div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       INSTELLINGEN TAB
+       ============================================ -->
+  <div id="tab-settings" class="tab-content">
+    <div class="section">
+      <div class="settings-row">
+        <label>Doel uren per maand</label>
+        <input type="number" id="set-doel" inputmode="numeric">
+      </div>
+      <div class="settings-row">
+        <label>Uurloon €</label>
+        <input type="number" id="set-uurloon" step="0.01" inputmode="decimal">
+      </div>
+      <div class="settings-row">
+        <label>Netto maandloon €</label>
+        <input type="number" id="set-netto" step="0.01" inputmode="decimal">
+      </div>
+      <button class="btn-purple" onclick="saveSettings()" style="width:100%;margin-top:10px;">Opslaan</button>
+
+      <div style="margin-top:30px;padding-top:20px;border-top:1px solid var(--accent);">
+        <h2 style="color:var(--red);">Data</h2>
+        <button class="btn-red" onclick="exportData()" style="width:100%;margin-bottom:10px;">Exporteer data</button>
+        <button style="width:100%;background:var(--accent);color:var(--text);" onclick="document.getElementById('import-file').click()">Importeer data</button>
+        <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       BEVESTIG VERWIJDER MODAL
+       ============================================ -->
+  <div class="modal" id="delete-modal">
+    <div class="modal-content">
+      <h3>Verwijderen?</h3>
+      <p id="delete-text">Weet je zeker dat je dit wilt verwijderen?</p>
+      <div class="modal-buttons">
+        <button style="background:var(--accent);color:var(--text);" onclick="closeModal()">Annuleer</button>
+        <button class="btn-red" onclick="confirmDelete()">Verwijder</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // DATA STRUCTUUR
+    // ============================================
+    let data = {
+      maand_doel_uren: 152,
+      uurloon: 25,
+      netto_totaal: 2217.87,
+      gewerkte_dagen: [
+        {"datum": "13-12-2025", "uren": 4.5, "notitie": "Za"},
+        {"datum": "14-12-2025", "uren": 4.5, "notitie": "Zo"},
+        {"datum": "15-12-2025", "uren": 4, "notitie": "Ma"},
+        {"datum": "17-12-2025", "uren": 2, "notitie": "Wo"},
+        {"datum": "18-12-2025", "uren": 3.5, "notitie": "Do"},
+        {"datum": "19-12-2025", "uren": 5, "notitie": "Vr"},
+        {"datum": "20-12-2025", "uren": 4, "notitie": "Za"},
+        {"datum": "21-12-2025", "uren": 4, "notitie": "Zo"},
+        {"datum": "22-12-2025", "uren": 2, "notitie": "Ma"},
+        {"datum": "23-12-2025", "uren": 3, "notitie": "Di"},
+        {"datum": "24-12-2025", "uren": 5, "notitie": "Wo"},
+        {"datum": "26-12-2025", "uren": 1.5, "notitie": "Vr"},
+        {"datum": "27-12-2025", "uren": 4, "notitie": "Za"},
+        {"datum": "28-12-2025", "uren": 4, "notitie": "Zo"},
+        {"datum": "29-12-2025", "uren": 3.5, "notitie": "Ma"},
+        {"datum": "30-12-2025", "uren": 7, "notitie": "Di"},
+        {"datum": "01-01-2026", "uren": 4, "notitie": "Do"},
+        {"datum": "02-01-2026", "uren": 8, "notitie": "Vr"}
+      ],
+      uitgaven_broertje: [
+        {"datum": "13-12-2025", "bedrag": 50, "omschrijving": ""},
+        {"datum": "15-12-2025", "bedrag": 20, "omschrijving": ""},
+        {"datum": "19-12-2025", "bedrag": 30, "omschrijving": ""},
+        {"datum": "21-12-2025", "bedrag": 27, "omschrijving": ""},
+        {"datum": "27-12-2025", "bedrag": 30, "omschrijving": ""},
+        {"datum": "30-12-2025", "bedrag": 20, "omschrijving": ""},
+        {"datum": "02-01-2026", "bedrag": 120, "omschrijving": ""}
+      ],
+      betaald_aan_vader: 0
+    };
+
+    let deleteCallback = null;
+
+    // ============================================
+    // OPSLAG FUNCTIES
+    // ============================================
+    function loadData() {
+      const saved = localStorage.getItem('uren_tracker_data');
+      if (saved) {
+        try {
+          data = JSON.parse(saved);
+        } catch (e) {
+          console.error('Fout bij laden data:', e);
+        }
+      } else {
+        // Eerste keer: sla de standaard data op
+        saveData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('uren_tracker_data', JSON.stringify(data));
+    }
+
+    // ============================================
+    // UI UPDATES
+    // ============================================
+    function updateUI() {
+      const doel = data.maand_doel_uren;
+      const uurloon = data.uurloon;
+      const netto = data.netto_totaal;
+
+      const gewerkt = data.gewerkte_dagen.reduce((sum, d) => sum + d.uren, 0);
+      const uitgavenGeld = data.uitgaven_broertje.reduce((sum, u) => sum + u.bedrag, 0);
+      const uitgavenUren = uitgavenGeld / uurloon;
+      const totaalGedaan = gewerkt + uitgavenUren;
+      const nogTeWerken = Math.max(0, doel - totaalGedaan);
+
+      const nettoPerUur = netto / doel;
+      const nuVerdiend = totaalGedaan * nettoPerUur;
+      const terugVader = uitgavenGeld;
+      const jijOver = nuVerdiend - terugVader;
+
+      // Cards
+      document.getElementById('card-gewerkt').textContent = gewerkt.toFixed(1);
+      document.getElementById('card-nog').textContent = nogTeWerken.toFixed(1);
+      document.getElementById('card-terug').textContent = '€' + terugVader.toFixed(0);
+
+      const cardOver = document.getElementById('card-over');
+      cardOver.textContent = '€' + jijOver.toFixed(0);
+      cardOver.className = jijOver < 0 ? 'card-value text-red' : 'card-value text-purple';
+
+      // Overzicht
+      document.getElementById('row-doel').textContent = doel + ' uur';
+      document.getElementById('row-gewerkt').textContent = gewerkt.toFixed(1) + ' uur';
+      document.getElementById('row-uitgaven-uren').textContent = '+' + uitgavenUren.toFixed(1) + ' uur';
+      document.getElementById('row-totaal').textContent = totaalGedaan.toFixed(1) + ' uur';
+      document.getElementById('row-nog').textContent = nogTeWerken.toFixed(1) + ' uur';
+
+      // Geld
+      document.getElementById('row-netto').textContent = '€' + netto.toLocaleString('nl-NL');
+      document.getElementById('row-verdiend').textContent = '€' + nuVerdiend.toFixed(0);
+      document.getElementById('row-terug').textContent = '€' + terugVader.toFixed(0);
+
+      const rowOver = document.getElementById('row-over');
+      rowOver.textContent = '€' + jijOver.toFixed(0);
+      rowOver.className = jijOver < 0 ? 'row-value text-red' : 'row-value text-purple';
+
+      // Betaald aan vader
+      const betaaldVader = data.betaald_aan_vader || 0;
+      document.getElementById('betaald-vader').value = betaaldVader || '';
+      const nogBetalen = terugVader - betaaldVader;
+      document.getElementById('nog-betalen').textContent = nogBetalen > 0 ? '(nog €' + nogBetalen.toFixed(0) + ')' : '';
+
+      // Settings
+      document.getElementById('set-doel').value = doel;
+      document.getElementById('set-uurloon').value = uurloon;
+      document.getElementById('set-netto').value = netto;
+
+      // Einde maand - uren over gaat naar broertje
+      const urenOver = nogTeWerken;
+      const geldNaarBroertje = urenOver * nettoPerUur;
+      document.getElementById('uren-over').textContent = urenOver.toFixed(1) + ' uur';
+      document.getElementById('geld-naar-broertje').textContent = '€' + geldNaarBroertje.toFixed(0);
+
+      // Lijsten
+      renderUrenList();
+      renderUitgavenList();
+    }
+
+    function renderUrenList() {
+      const list = document.getElementById('uren-list');
+      const sorted = [...data.gewerkte_dagen].sort((a, b) => parseDate(b.datum) - parseDate(a.datum));
+
+      if (sorted.length === 0) {
+        list.innerHTML = '<div class="empty">Nog geen uren toegevoegd</div>';
+        return;
+      }
+
+      list.innerHTML = sorted.map((d, i) => `
+        <div class="list-item">
+          <div class="list-item-left">
+            <div class="list-item-date">${d.datum} (${getDag(d.datum)})</div>
+            <div class="list-item-note">${d.notitie || '-'}</div>
+          </div>
+          <span class="list-item-value text-green">${d.uren}u</span>
+          <button class="btn-delete" onclick="deleteUren('${d.datum}', ${d.uren})">×</button>
+        </div>
+      `).join('');
+    }
+
+    function renderUitgavenList() {
+      const list = document.getElementById('uitgaven-list');
+      const sorted = [...data.uitgaven_broertje].sort((a, b) => parseDate(b.datum) - parseDate(a.datum));
+
+      if (sorted.length === 0) {
+        list.innerHTML = '<div class="empty">Nog geen uitgaven toegevoegd</div>';
+        return;
+      }
+
+      list.innerHTML = sorted.map(u => `
+        <div class="list-item">
+          <div class="list-item-left">
+            <div class="list-item-date">${u.datum}</div>
+            <div class="list-item-note">${u.omschrijving || '-'}</div>
+          </div>
+          <span class="list-item-value text-orange">€${u.bedrag}</span>
+          <button class="btn-delete" onclick="deleteUitgave('${u.datum}', ${u.bedrag})">×</button>
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // HULPFUNCTIES
+    // ============================================
+    function parseDate(dateStr) {
+      const parts = dateStr.split('-');
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+
+    function getDag(dateStr) {
+      const dagen = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'];
+      return dagen[parseDate(dateStr).getDay()];
+    }
+
+    function formatDateInput(dateInput) {
+      const date = new Date(dateInput);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+
+    function getTodayISO() {
+      const today = new Date();
+      return today.toISOString().split('T')[0];
+    }
+
+    // ============================================
+    // TABS
+    // ============================================
+    function showTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    // ============================================
+    // UREN FUNCTIES
+    // ============================================
+    function addUren() {
+      const datumInput = document.getElementById('uren-datum').value;
+      const uren = parseFloat(document.getElementById('uren-uren').value);
+      const notitie = document.getElementById('uren-notitie').value;
+
+      if (!datumInput || !uren || uren <= 0) {
+        alert('Vul datum en uren in');
+        return;
+      }
+
+      const datum = formatDateInput(datumInput);
+      data.gewerkte_dagen.push({ datum, uren, notitie });
+      saveData();
+      updateUI();
+
+      // Reset form
+      document.getElementById('uren-uren').value = '';
+      document.getElementById('uren-notitie').value = '';
+    }
+
+    function deleteUren(datum, uren) {
+      deleteCallback = () => {
+        data.gewerkte_dagen = data.gewerkte_dagen.filter(d =>
+          !(d.datum === datum && d.uren === uren)
+        );
+        saveData();
+        updateUI();
+      };
+      document.getElementById('delete-text').textContent = `${datum} - ${uren} uur verwijderen?`;
+      document.getElementById('delete-modal').classList.add('show');
+    }
+
+    // ============================================
+    // UITGAVEN FUNCTIES
+    // ============================================
+    function addUitgave() {
+      const datumInput = document.getElementById('uitgave-datum').value;
+      const bedrag = parseFloat(document.getElementById('uitgave-bedrag').value);
+      const omschrijving = document.getElementById('uitgave-omschr').value;
+
+      if (!datumInput || !bedrag || bedrag <= 0) {
+        alert('Vul datum en bedrag in');
+        return;
+      }
+
+      const datum = formatDateInput(datumInput);
+      data.uitgaven_broertje.push({ datum, bedrag, omschrijving });
+      saveData();
+      updateUI();
+
+      // Reset form
+      document.getElementById('uitgave-bedrag').value = '';
+      document.getElementById('uitgave-omschr').value = '';
+    }
+
+    function deleteUitgave(datum, bedrag) {
+      deleteCallback = () => {
+        data.uitgaven_broertje = data.uitgaven_broertje.filter(u =>
+          !(u.datum === datum && Math.abs(u.bedrag - bedrag) < 0.01)
+        );
+        saveData();
+        updateUI();
+      };
+      document.getElementById('delete-text').textContent = `${datum} - €${bedrag} verwijderen?`;
+      document.getElementById('delete-modal').classList.add('show');
+    }
+
+    // ============================================
+    // BETAALD AAN VADER
+    // ============================================
+    function updateBetaaldVader() {
+      const val = parseFloat(document.getElementById('betaald-vader').value) || 0;
+      data.betaald_aan_vader = val;
+      saveData();
+      updateUI();
+    }
+
+    // ============================================
+    // INSTELLINGEN
+    // ============================================
+    function saveSettings() {
+      const doel = parseFloat(document.getElementById('set-doel').value);
+      const uurloon = parseFloat(document.getElementById('set-uurloon').value);
+      const netto = parseFloat(document.getElementById('set-netto').value);
+
+      if (!doel || !uurloon || !netto) {
+        alert('Vul alle velden in');
+        return;
+      }
+
+      data.maand_doel_uren = doel;
+      data.uurloon = uurloon;
+      data.netto_totaal = netto;
+      saveData();
+      updateUI();
+      alert('Opgeslagen!');
+    }
+
+    // ============================================
+    // EXPORT / IMPORT
+    // ============================================
+    function exportData() {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'uren_tracker_backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          data = imported;
+          saveData();
+          updateUI();
+          alert('Data geimporteerd!');
+        } catch (err) {
+          alert('Fout bij importeren: ongeldig bestand');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // ============================================
+    // MODAL
+    // ============================================
+    function closeModal() {
+      document.getElementById('delete-modal').classList.remove('show');
+      deleteCallback = null;
+    }
+
+    function confirmDelete() {
+      if (deleteCallback) {
+        deleteCallback();
+      }
+      closeModal();
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    function init() {
+      // Laad data
+      loadData();
+
+      // Zet vandaag als default datum
+      const today = getTodayISO();
+      document.getElementById('uren-datum').value = today;
+      document.getElementById('uitgave-datum').value = today;
+
+      // Update UI
+      updateUI();
+    }
+
+    // Start app
+    init();
+  </script>
+</body>
+</html>
