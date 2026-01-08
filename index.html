@@ -582,11 +582,10 @@
 
       const gewerkt = data.gewerkte_dagen.reduce((sum, d) => sum + d.uren, 0);
       const uitgavenGeld = data.uitgaven_broertje.reduce((sum, u) => sum + u.bedrag, 0);
-      const uitgavenUren = uitgavenGeld / uurloon;
+      const nettoPerUur = netto / doel;
+      const uitgavenUren = uitgavenGeld / nettoPerUur;
       const totaalGedaan = gewerkt + uitgavenUren;
       const nogTeWerken = Math.max(0, doel - totaalGedaan);
-
-      const nettoPerUur = netto / doel;
       const nuVerdiend = totaalGedaan * nettoPerUur;
       const terugVader = uitgavenGeld;
       const jijOver = nuVerdiend - terugVader;
