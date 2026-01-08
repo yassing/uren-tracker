@@ -316,8 +316,9 @@ class UrenTrackerApp(ctk.CTk):
 
         for i in self.tree2.get_children():
             self.tree2.delete(i)
+        netto_per_uur = self.data.get('netto_totaal', 2217.87) / self.data['maand_doel_uren']
         for u in self.data['uitgaven_broertje']:
-            self.tree2.insert('', tk.END, values=(u['datum'], f"€{u['bedrag']:.0f}", f"{u['bedrag']/self.data['uurloon']:.1f}", u.get('omschrijving', '')))
+            self.tree2.insert('', tk.END, values=(u['datum'], f"€{u['bedrag']:.0f}", f"{u['bedrag']/netto_per_uur:.1f}", u.get('omschrijving', '')))
 
     def add_uren(self):
         try:
